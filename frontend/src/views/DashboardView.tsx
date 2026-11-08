@@ -4,7 +4,7 @@ import { KpiCard } from '../components/ui/KpiCard';
 import { CashflowChart } from '../components/charts/CashflowChart';
 import { TransactionTable } from '../components/table/TransactionTable';
 import { formatCurrency } from '../utils/formatters';
-import { DollarSign, Flame, Clock, TrendingUp, Calendar, Landmark, Upload } from 'lucide-react';
+import { IndianRupee, Flame, Clock, TrendingUp, Calendar, Landmark, Upload } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
   const {
@@ -51,9 +51,9 @@ export const DashboardView: React.FC = () => {
               className="bg-transparent text-slate-200 focus:outline-none cursor-pointer font-medium"
             >
               <option value="all" className="bg-slate-900">All Accounts (Consolidated)</option>
-              <option value="checking" className="bg-slate-900">Primary Operating (*4910)</option>
-              <option value="payroll" className="bg-slate-900">Payroll Checking (*1088)</option>
-              <option value="credit" className="bg-slate-900">Corporate Credit (*9921)</option>
+              <option value="checking" className="bg-slate-900">Current A/c - HDFC (*4910)</option>
+              <option value="payroll" className="bg-slate-900">Salary / Tax A/c - SBI (*1088)</option>
+              <option value="credit" className="bg-slate-900">Working Capital / CC (*9921)</option>
             </select>
           </div>
 
@@ -90,7 +90,7 @@ export const DashboardView: React.FC = () => {
           value={currentBalance}
           subtitle="Total available liquid funds"
           change={hasData ? +4.2 : undefined}
-          icon={DollarSign}
+          icon={IndianRupee}
           iconBgColor="bg-emerald-500/15"
           iconTextColor="text-emerald-400"
           badgeText={hasData ? 'Healthy' : 'No Data'}

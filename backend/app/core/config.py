@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # ── Database ──────────────────────────────────────────────
-    DATABASE_URL: str = ""
+    DATABASE_URL: str = "sqlite+aiosqlite:///cashflow.db"
 
     # ── JWT Auth ──────────────────────────────────────────────
     JWT_SECRET_KEY: str = "change-me-in-production"

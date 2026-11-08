@@ -3,16 +3,25 @@
  */
 
 export function formatCurrency(amount: number, compact = false): string {
-  if (compact && Math.abs(amount) >= 1_000_000) {
-    return `$${(amount / 1_000_000).toFixed(1)}M`;
-  }
-  if (compact && Math.abs(amount) >= 1_000) {
-    return `$${(amount / 1_000).toFixed(1)}k`;
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(amount);
+
+  if (compact) {
+    if (absAmount >= 10_000_000) {
+      return `${isNegative ? '-' : ''}₹${(absAmount / 10_000_000).toFixed(2)} Cr`;
+    }
+    if (absAmount >= 100_000) {
+      return `${isNegative ? '-' : ''}₹${(absAmount / 100_000).toFixed(1)} L`;
+    }
+    if (absAmount >= 1_000) {
+      return `${isNegative ? '-' : ''}₹${(absAmount / 1_000).toFixed(1)} k`;
+    }
+    return `${isNegative ? '-' : ''}₹${Math.round(absAmount)}`;
   }
 
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     maximumFractionDigits: 0,
   }).format(amount);
 }

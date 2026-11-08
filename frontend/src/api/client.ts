@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BackendPredictionResponse, ScenarioParams, FullForecastResult, TransactionItem } from './types';
+import { BackendPredictionResponse, OCRUploadResponse, ScenarioParams, FullForecastResult, TransactionItem } from './types';
 import { mapBackendToFullForecast } from './mapper';
 import { extractFeaturesFromTransactions } from '../utils/featureExtractor';
 
@@ -42,6 +42,94 @@ function extractBackendErrorDetail(error: any): string | null {
   return null;
 }
 
+export interface OCRForecastResult extends FullForecastResult {
+  ocrTransactions: TransactionItem[];
+  rawTextSnippet?: string;
+  totalExtracted?: number;
+  inflowTotal?: number;
+  outflowTotal?: number;
+  confidenceNote?: string;
+}
+
+/**
+ * Upload statement photo/receipt image to backend `/upload/image` for OCR parsing and prediction
+ */
+export async function uploadStatementImageApi(
+  file: File,
+  isMockMode = false,
+  scenario?: ScenarioParams
+): Promise<OCRForecastResult> {
+  if (isMockMode) {
+    await new Promise((res) => setTimeout(res, 900));
+    const mockTxns: TransactionItem[] = [
+      { id: 'ocr_demo_1', date: new Date().toISOString().split('T')[0], description: 'Client Invoice Payment', amount: 4800, category: 'Revenue', account: 'Main', type: 'inflow', balance: 14800 },
+      { id: 'ocr_demo_2', date: new Date().toISOString().split('T')[0], description: 'Office Equipment Lease', amount: 650, category: 'Supplies', account: 'Main', type: 'outflow', balance: 14150 },
+    ];
+    const mockBackend: OCRUploadResponse = {
+      predicted_cashflow: 4150.0,
+      liquidity_score: 80.0,
+      risk: 'Stable',
+      recommendations: [
+        'Detected 2 recent transactions from photo.',
+        'Working capital remains stable over the upcoming cycle.',
+      ],
+      extracted_transactions: mockTxns,
+      total_extracted: 2,
+      inflow_total: 4800,
+      outflow_total: 650,
+      confidence_note: 'Demo mode simulated OCR parsing.',
+    };
+    const forecast = mapBackendToFullForecast(mockBackend, mockTxns, scenario);
+    return {
+      ...forecast,
+      ocrTransactions: mockTxns,
+      totalExtracted: 2,
+      inflowTotal: 4800,
+      outflowTotal: 650,
+    };
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await apiClient.post<OCRUploadResponse>('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const parsedTxns: TransactionItem[] = (response.data.extracted_transactions || []).map((t, idx) => ({
+      id: t.id || `ocr_${idx}`,
+      date: t.date,
+      description: t.description || 'OCR Item',
+      amount: t.amount,
+      category: t.category || 'General',
+      account: t.account || 'Statement Account',
+      type: t.type === 'inflow' ? 'inflow' : 'outflow',
+      balance: t.balance || 0,
+    }));
+
+    const fullForecast = mapBackendToFullForecast(response.data, parsedTxns, scenario);
+
+    return {
+      ...fullForecast,
+      ocrTransactions: parsedTxns,
+      rawTextSnippet: response.data.raw_text_snippet,
+      totalExtracted: response.data.total_extracted,
+      inflowTotal: response.data.inflow_total,
+      outflowTotal: response.data.outflow_total,
+      confidenceNote: response.data.confidence_note,
+    };
+  } catch (error: any) {
+    const apiDetail = extractBackendErrorDetail(error);
+    if (apiDetail) {
+      throw new Error(apiDetail);
+    }
+    throw error;
+  }
+}
+
 /**
  * Upload bank statement CSV file to backend `/upload`
  */
@@ -60,7 +148,7 @@ export async function uploadStatementApi(
       recommendations: [
         'Forecasted net cashflow remains positive over the next 14 days.',
         'Current cash reserves cover 48 days of operating expenses.',
-        'Optimal window to re-invest $15,000 in short-term yield accounts.'
+        'Optimal window to re-invest ₹1,50,000 in short-term yield accounts.'
       ]
     };
     return mapBackendToFullForecast(mockBackend, transactions, scenario);

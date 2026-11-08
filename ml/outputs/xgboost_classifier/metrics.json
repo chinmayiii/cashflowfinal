@@ -1,6 +1,6 @@
 {
-    "Accuracy": 0.9658,
-    "Precision_Weighted": 0.966,
-    "Recall_Weighted": 0.9658,
-    "F1_Score_Weighted": 0.9658
+    "Accuracy": 0.9696,
+    "Precision_Weighted": 0.9696,
+    "Recall_Weighted": 0.9696,
+    "F1_Score_Weighted": 0.9696
 }

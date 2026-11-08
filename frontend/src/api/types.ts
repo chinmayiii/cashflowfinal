@@ -9,6 +9,15 @@ export interface BackendPredictionResponse {
   recommendations: string[];
 }
 
+export interface OCRUploadResponse extends BackendPredictionResponse {
+  extracted_transactions: TransactionItem[];
+  raw_text_snippet?: string;
+  total_extracted?: number;
+  inflow_total?: number;
+  outflow_total?: number;
+  confidence_note?: string;
+}
+
 export interface ForecastPoint {
   date: string;
   predicted_cashflow: number;

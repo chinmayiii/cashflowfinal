@@ -10,10 +10,10 @@ export const UploadView: React.FC = () => {
     <div className="space-y-8 animate-fade-in max-w-4xl mx-auto">
       <div>
         <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-100">
-          Bank Statement Ingestion & ML Processing
+          Statement Ingestion & Mobile Photo OCR
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Upload bank transaction CSV files to trigger track A feature engineering and Next-Day prediction models
+          Upload bank transaction CSV files or snap a photo of a passbook, statement, or receipt using your mobile camera
         </p>
       </div>
 
